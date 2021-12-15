@@ -51,7 +51,8 @@ class ShirtController extends Controller
     }
     
     //Funtion to update a shirt by ID
-    public function updateShirt(Request $request, $id) {
+    public function updateShirt(Request $request, $id) 
+    {
         if (Shirt::where('id', $id)->exists()) {
             $shirt = Shirt::find($id);
     
@@ -77,7 +78,8 @@ class ShirtController extends Controller
     }
 
     //Function to delete a shirt by ID
-    public function deleteShirt ($id) {
+    public function deleteShirt ($id) 
+    {
         if(Shirt::where('id', $id)->exists()) {
             $shirt = Shirt::find($id);
             $shirt->delete();
@@ -92,4 +94,135 @@ class ShirtController extends Controller
         }
     }
 
+
+    //Function to parse a CSV file
+    public function parseCSV(Request $request) 
+    {
+        $file = $request->file('uploaded_file');
+
+        if ($file) {
+            $filename = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $tempPath = $file->getRealPath();
+            $fileSize = $file->getSize();
+            
+            //Check file extension and size (max size 2mb)
+            
+            if (!in_array(strtolower($extension), ["csv"])) {
+                return response()->json([
+                    "message" => "Invalid file extension"
+                ], 415);
+            }
+
+            if ($fileSize > 2097152) {
+                return response()->json([
+                    "message" => "Too large file"
+                ], 413);
+            }
+            
+
+            $file = fopen($tempPath, "r");
+
+            //CSV headers to use as key
+            $key = fgetcsv($file, 1024, ",");
+            $ki = 0;
+
+            // Remove any invalid or hidden characters
+            foreach($key as $k){
+                $key[$ki] = trim($key[$ki], "\xEF\xBB\xBF");
+                $ki++;
+            }
+
+            // Result parsed CSV rows into array
+            $json = [];
+            
+            $i = 0;
+            while ($row = fgetcsv($file, 1024, ",")) {
+                if ($i>0) {
+                    $json[] = array_combine($key, $row);
+                }
+
+                $i++;
+            }
+            
+            return response()->json([
+                "data" => $json
+            ], 200);
+        } else {
+            return response()->json([
+                "message" => "No file was uploaded"
+            ], 404);
+        }
+    }
+
+    public function importCSV(Request $request) 
+    {
+        $file = $request->file('uploaded_file');
+
+        if ($file) {
+            $filename = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $tempPath = $file->getRealPath();
+            $fileSize = $file->getSize();
+            
+            //Check file extension and size (max size 2mb)
+            
+            if (!in_array(strtolower($extension), ["csv"])) {
+                return response()->json([
+                    "message" => "Invalid file extension"
+                ], 415);
+            }
+
+            if ($fileSize > 2097152) {
+                return response()->json([
+                    "message" => "Too large file"
+                ], 413);
+            }
+            
+
+            $file = fopen($tempPath, "r");
+
+            //CSV headers to use as key
+            $key = fgetcsv($file, 1024, ",");
+            $ki = 0;
+
+            // Remove any invalid or hidden characters
+            foreach($key as $k){
+                $key[$ki] = trim($key[$ki], "\xEF\xBB\xBF");
+                $ki++;
+            }
+
+            // Result parsed CSV rows into array
+            $json = [];
+            
+            $i = 0;
+            while ($row = fgetcsv($file, 1024, ",")) {
+                if ($i>0) {
+                    $json[] = array_combine($key, $row);
+                }
+
+                $i++;
+            }
+
+            foreach ($json as $d) {
+                $shirt = new Shirt;
+                $shirt->name = $d['name'];
+                $shirt->description = $d['description'];
+                $shirt->color = $d['color'];
+                $shirt->size = $d['size'];
+                $shirt->brand = $d['brand'];
+                $shirt->material = $d['material'];
+                $shirt->price = $d['price'];
+                $shirt->save();
+            }
+            
+            return response()->json([
+                "message" => "Imported data"
+            ], 200);
+        } else {
+            return response()->json([
+                "message" => "No file was uploaded"
+            ], 404);
+        }
+    }
 }

@@ -23,3 +23,6 @@ Route::get('shirts/{id}', 'Api\ShirtController@getByID');
 Route::post('shirts', 'Api\ShirtController@createShirt');
 Route::put('shirts/{id}', 'Api\ShirtController@updateShirt');
 Route::delete('shirts/{id}','Api\ShirtController@deleteShirt');
+
+Route::post('shirts/csvparse', 'Api\ShirtController@parseCSV');
+Route::post('shirts/csvimport', 'Api\ShirtController@importCSV');
