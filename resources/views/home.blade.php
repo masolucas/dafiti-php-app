@@ -194,7 +194,7 @@
                                             <select name="color" class="form-control" id="editColor" required>
                                                 <option value="Blue">Blue</option>
                                                 <option value="Green">Green</option>
-                                                <option value="Rose">Pink</option>
+                                                <option value="Pink">Pink</option>
                                                 <option value="Red">Red</option>
                                             </select>
                                         </div>
