@@ -49,6 +49,9 @@
                     <img src="{{ asset('images/logo.png') }}" height="30" class="d-inline-block mr-3" alt="Dafiti logo">
                     Dafiti - PHP Tech Challange
                 </a>
+                <a href="https://github.com/masolucas/dafiti-php-app" target="_blank" >
+                    <img src="{{ asset('images/github.png') }}" height="30" class="d-inline-block mr-3" alt="GitHub">
+                </a>
             </nav>
         </header>
         <main>
